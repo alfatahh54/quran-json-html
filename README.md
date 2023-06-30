@@ -1,4 +1,4 @@
-# Kumpulan Surah Al-Quran
+# Kumpulan Surah Al-Quran Offline .JSON
 Kumpulan surah Al-Quran ini diambil dari API [eQuran](https://equran.id/apidev). Sumber utama dari data yang terdapat pada API Al-Quran ini adalah [Aplikasi Quran Kementerian Agama Republik Indonesia](https://quran.kemenag.go.id/), audio murottal dari [Quran Central](https://qurancentral.com/), dan [Verse By Verse Quran](https://everyayah.com/).
 
 Semoga dapat dimanfaatkan sebaik-baiknya.
