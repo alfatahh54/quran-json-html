@@ -5,8 +5,8 @@
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<title>Quran Json</title>
-	<link href="/dist/css/bootstrap.min.css" rel="stylesheet" />
-	<link rel="stylesheet" href="/dist/font/bootstrap-icons.css" />
+	<link href="./dist/css/bootstrap.min.css" rel="stylesheet" />
+	<link rel="stylesheet" href="./dist/font/bootstrap-icons.css" />
 </head>
 
 <body style="background-color: #040c23">
@@ -52,12 +52,22 @@
 	<section class="modal-surah modal fade" style="--bs-modal-bg: #040c23" id="staticBackdrop" data-bs-backdrop="static"
 		data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
 		<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="margin: 0 auto; width: 100%; height: 100%;">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h1 class="modal-title fs-5 text-white fw-bold" id="surah-title">
-						-
-					</h1>
-					<button type="button" class="btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+			<div class="modal-content" style="height: 100%;">
+				<div class="modal-header" style="background-color: #2AAF2D">
+					<div class="w-100 d-flex justify-content-between align-items-center">
+						<div style="width: 8%;">
+							<button type="button" class="btn" id="next_surah" onclick="nextSurah()" ><i class="bi bi-arrow-left text-white"></i></button>
+						</div>
+						<div style="width: 80%;">
+							<h1 class="text-center modal-title fs-5 text-white fw-bold" id="surah-title">
+								-
+							</h1>
+						</div>
+						<div style="width: 8%;">
+							<button type="button" class="btn" id="prev_surah" onclick="prevSurah()" ><i class="bi bi-arrow-right text-white"></i></button>
+						</div>
+					</div>
+					<!-- <button type="button" class="btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button> -->
 				</div>
 				<div class="modal-body" id="surah-detail">
 
@@ -71,8 +81,8 @@
 		</div>
 	</section>
 
-	<script src="/dist/js/bootstrap.bundle.min.js"></script>
-	<script src="/dist/js/jquery-3.7.0.min.js"></script>
+	<script src="./dist/js/bootstrap.bundle.min.js"></script>
+	<script src="./dist/js/jquery-3.7.0.min.js"></script>
 	<script>
 		let surahs
 		let selectedLanguage = "id";
@@ -84,7 +94,7 @@
 		getSurahList();
 		function getSurahList() {
 			$.ajax({
-				url: `surah_list.json`,
+				url: `./surah_list.json`,
 				type: "GET",
 				dataType: "json",
 				data: {},
@@ -105,7 +115,7 @@
 				html += `
                     <tr>
                         <td scope="row" class="text-white align-middle position-relative" style="width: 65px">
-							<div class="position-absolute d-flex align-items-center justify-content-center" style="font-size: small; font-weight: bold; top: 50%; left: 50%; transform: translate(-50%, -50%); background-image: url('/assets/images/hiclipart.png'); background-size: cover; background-position: center; width: 37px; height: 44px;">
+							<div class="position-absolute d-flex align-items-center justify-content-center" style="font-size: small; font-weight: bold; top: 50%; left: 50%; transform: translate(-50%, -50%); background-image: url('./assets/images/hiclipart.png'); background-size: cover; background-position: center; width: 37px; height: 44px;">
 								${item.id}
 							</div>
 						</td>
@@ -127,10 +137,74 @@
 
 			return $("#data-surah").html(html);
 		}
+		function nextSurah() {
+			var id = parseInt($("#title-text").attr("aria-label"));
+			if (id + 1 == 1) {
+				$("#prev_surah").hide()
+			} else {
+				$("#prev_surah").show()
+			}
+			if (id + 1 == 114) {
+				$("#next_surah").hide()
+			} else {
+				$("#next_surah").show()
+			}
+			$.ajax({
+				url: `./Surah/${id + 1}.json`,
+				type: "GET",
+				dataType: "json",
+				data: {},
+				beforeSend: function () { },
+				error: function (error) {
+					alert("Gagal memuat data surah");
+				},
+				success: function (response) {
+					renderSurah(response);
+					$(".modal-surah").modal("show");
+				},
+			});
+		}
+
+		function prevSurah() {
+			var id = parseInt($("#title-text").attr("aria-label"));
+			if (id - 1 == 1) {
+				$("#prev_surah").hide()
+			} else {
+				$("#prev_surah").show()
+			}
+			if (id - 1 == 114) {
+				$("#next_surah").hide()
+			} else {
+				$("#next_surah").show()
+			}
+			$.ajax({
+				url: `Surah/${id - 1}.json`,
+				type: "GET",
+				dataType: "json",
+				data: {},
+				beforeSend: function () { },
+				error: function (error) {
+					alert("Gagal memuat data surah");
+				},
+				success: function (response) {
+					renderSurah(response);
+					$(".modal-surah").modal("show");
+				},
+			});
+		}
 
 		$(document).on("click", ".open-surah", function () {
 			var id = $(this).data("id");
-
+			if (id == 1) {
+				$("#prev_surah").hide()
+			} else {
+				$("#prev_surah").show()
+			}
+			if (id == 114) {
+				$("#next_surah").hide()
+			} else {
+				$("#next_surah").show()
+			}
 			$.ajax({
 				url: `Surah/${id}.json`,
 				type: "GET",
@@ -148,24 +222,32 @@
 		});
 
 		function renderSurah(data) {
+			$(".modal-body").scrollTop(0);
 			html = '';
 			const selectedSurah = surahs.find(surah => surah.id == (data[0]?.surah) ?? 0);
-			console.log({selectedSurah});
 			$("#close_bottom_modal").html(selectedLanguage == "id" ? "Tutup" : "Close");
 			htmlTitleSurah = `
-				<div class="d-flex align-items-center">
-					<div class="fs-6 fw-bold text-white">${selectedSurah.name} (${selectedSurah['text_'+selectedLanguage]})</div>
-					<i class="bi bi-dot fs-3"></i>
+				<div class="w-100 d-flex justify-content-between align-items-center" id="title-text" aria-label="${selectedSurah.id}">
+					<div class="fs-6 fw-bold text-white" style="text-transform: capitalize">${selectedSurah['type_'+selectedLanguage]}</div>
+					<div class="fs-6 fw-bold text-white d-flex flex-column align-items-center">${selectedSurah.id}. ${selectedSurah.name} <span>${selectedSurah['text_'+selectedLanguage]}</span></div>
 					<div class="fs-6 fw-bold text-white">${selectedSurah.count} ayat</div>
 				</div>
 			`;
 			$("#surah-title").html(htmlTitleSurah);
-
+			if (selectedSurah.id !==1 && selectedSurah.id != 9) {
+				const basmallah = "\u0628\u0650\u0633\u0652\u0645\u0650 \u0627\u0644\u0644\u0651\u0670\u0647\u0650 \u0627\u0644\u0631\u0651\u064e\u062d\u0652\u0645\u0670\u0646\u0650 \u0627\u0644\u0631\u0651\u064e\u062d\u0650\u064a\u0652\u0645\u0650"
+				html += `
+					<div class="d-flex flex-column justify-content-center align-items-center mb-4">
+						<div class="fs-6 fw-bold text-white">${basmallah}</div>
+						<hr class="text-white w-100">
+					</div>
+				`;
+			}
 			$.each(data, function (key, item) {
 				html += `
 					<div class="${item.no_ayah != 1 ? 'mt-4' : ''}">
 						<div class="d-flex justify-content-between align-items-center">
-							<div class="text-white" style="background-image: url('/assets/images/hiclipart.png'); width: 37px; height: 44px; display: flex; justify-content: center; align-items: center; font-size: small; font-weight: bold;">
+							<div class="text-white" style="background-image: url('./assets/images/hiclipart.png'); width: 37px; height: 44px; display: flex; justify-content: center; align-items: center; font-size: small; font-weight: bold;">
 								${item.no_ayah}
 							</div>
 							<div class="fs-6 fw-bold text-white" style="max-width: 400px; text-align: right; width: 90%">
